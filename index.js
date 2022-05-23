@@ -1,7 +1,9 @@
 const express = require("express");
 const { create } = require("express-handlebars");
+require("dotenv").config();
+require("./database/db");
 const app = express();
-const port = 5000;
+const PORT = process.env.PORT || 5000;
 
 const hbs = create({ extname: ".hbs", partialsDir: ["views/components"] });
 
@@ -10,10 +12,10 @@ app.set("view engine", ".hbs");
 app.set("views", "./views");
 
 app.use(express.static(__dirname + "/public/"));
-
+app.use(express.urlencoded({ extended: true }));
 app.use("/", require("./routes/home"));
 app.use("/auth", require("./routes/auth"));
 
-app.listen(port, () => {
-  console.log(`servidor andando en puerto ${port}`);
+app.listen(PORT, () => {
+  console.log(`servidor andando en puerto ${PORT}`);
 });
