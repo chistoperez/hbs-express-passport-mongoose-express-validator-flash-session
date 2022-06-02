@@ -29,7 +29,7 @@ app.use(
     name: "session-user",
     store: MongoStore.create({
       clientPromise: clientDB,
-      dbName: process.env.DBNAME,
+      dbName: shortURL,
     }),
     cookie: {
       secure: process.env.MODO === "production",
