@@ -1,9 +1,15 @@
 const User = require("../models/User");
 const { validationResult } = require("express-validator");
 const { nanoid } = require("nanoid");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const registerForm = (req, res) => {
-  res.render("register", { mensajes: req.flash("mensajes") });
+  res.render("register");
+};
+
+const loginForm = (req, res) => {
+  res.render("login");
 };
 
 const registerUser = async (req, res) => {
@@ -17,14 +23,33 @@ const registerUser = async (req, res) => {
   const { userName, email, password } = req.body;
   try {
     let user = await User.findOne({ email });
-    if (user) throw new Error("ya existe el usuario");
+    if (user) throw new Error("This user already exist");
 
     user = new User({ userName, email, password, tokenConfirm: nanoid() });
     await user.save();
 
-    //enviar correo electronico con confirmacion de la cuenta
+    const transport = nodemailer.createTransport({
+      host: "smtp.mailtrap.io",
+      port: 2525,
+      auth: {
+        user: process.env.USEREMAIL,
+        pass: process.env.PASSEMAIL,
+      },
+    });
+
+    await transport.sendMail({
+      from: '"Fred Foo 👻" <foo@example.com>', // sender address
+      to: user.email, // list of receivers
+      subject: "Verify your email", // Subject line
+      html: `<a href="${
+        process.env.PATHHEROKU || "http://localhost:5000"
+      }/auth/confirmar/${user.tokenConfirm}">Verify your email</a>`, // html body
+    });
+
     req.flash("mensajes", [
-      { msg: "Revisa tu correo electrónico y valida cuenta" },
+      {
+        msg: "Open the verification email in your inbox, and click VERIFY YOUR EMAIL.",
+      },
     ]);
     res.redirect("/auth/login");
     //res.json(user);
@@ -40,25 +65,19 @@ const confirmarCuenta = async (req, res) => {
 
   try {
     const user = await User.findOne({ tokenConfirm: token });
-    if (!user) throw new Error("no existe este usuario");
+    if (!user) throw new Error("This user doesn't exist");
 
     user.cuentaConfirmada = true;
     user.tokenConfirm = null;
 
     await user.save();
-    req.flash("mensajes", [
-      { msg: "Cuenta verificada, puedes iniciar sesión" },
-    ]);
+    req.flash("mensajes", [{ msg: "Verified account, please login" }]);
     res.redirect("/auth/login");
   } catch (error) {
     req.flash("mensajes", [{ msg: error.message }]);
     return res.redirect("/auth/login");
     //res.json({ error: error.message });
   }
-};
-
-const loginForm = (req, res) => {
-  res.render("login", { mensajes: req.flash("mensajes") });
 };
 
 const loginUser = async (req, res) => {
@@ -72,16 +91,16 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email });
 
-    if (!user) throw new Error("No existe este email");
+    if (!user) throw new Error("This email doesn't exist");
 
-    if (!user.cuentaConfirmada) throw new Error("Favor de confirmar cuenta");
+    if (!user.cuentaConfirmada) throw new Error("Please confirm your account");
 
     if (!(await user.comparePassword(password)))
-      throw new Error("Contraseña no correcta");
+      throw new Error("Incorrect password");
 
     //Crear sesión de usuario a través de passport
     req.login(user, function (err) {
-      if (err) throw new Error("Error al crear la sesión");
+      if (err) throw new Error("Error creating session");
       res.redirect("/");
     });
   } catch (error) {

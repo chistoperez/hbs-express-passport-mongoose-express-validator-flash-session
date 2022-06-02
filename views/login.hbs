@@ -4,16 +4,19 @@
       action="/auth/login"
       method="post"
     >
+      <input type="hidden" name="_csrf" value="{{csrfToken}}" />
       <input
         type="text"
         name="email"
         class="form-control mb-2"
         placeholder="Email"
+        value="chistoperez@gmail.com"
       /><input
         type="password"
         name="password"
         class="form-control mb-2"
         placeholder="Password"
+        value="123123"
       />
       <button
         class="btn btn-primary"

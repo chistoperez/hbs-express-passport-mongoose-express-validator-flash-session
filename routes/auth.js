@@ -14,15 +14,18 @@ router.get("/register", registerForm);
 router.post(
   "/register",
   [
-    body("userName", "Ingrese un nombre válido").trim().notEmpty().escape(),
-    body("email", "Ingrese un email válido").trim().isEmail().normalizeEmail(),
-    body("password", "Contraseña de mínimo 6 caracteres")
+    body("userName", "Enter a valid name").trim().notEmpty().escape(),
+    body("email", "Enter a valid email address")
+      .trim()
+      .isEmail()
+      .normalizeEmail(),
+    body("password", "Password minimum 6 characters")
       .trim()
       .isLength({ min: 6 })
       .escape()
       .custom((value, { req }) => {
         if (value !== req.body.repassword) {
-          throw new Error("No coinciden las contraseñas");
+          throw new Error("Password does not match");
         } else {
           return value;
         }
@@ -35,8 +38,11 @@ router.get("/login", loginForm);
 router.post(
   "/login",
   [
-    body("email", "Ingrese un email válido").trim().isEmail().normalizeEmail(),
-    body("password", "Contraseña de mínimo 6 caracteres")
+    body("email", "Enter a valid email address")
+      .trim()
+      .isEmail()
+      .normalizeEmail(),
+    body("password", "Password minimum 6 characters")
       .trim()
       .isLength({ min: 6 })
       .escape(),
