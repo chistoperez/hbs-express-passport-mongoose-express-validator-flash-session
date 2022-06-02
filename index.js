@@ -13,12 +13,12 @@ const clientDB = require("./database/db");
 
 const app = express();
 
-app.use(cors());
 const corsOptions = {
   credentials: true,
   origin: process.env.PATHHEROKU || "*",
   methods: ["GET", "POST"],
 };
+app.use(cors());
 
 app.set("trust proxy", 1);
 app.use(
