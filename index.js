@@ -29,10 +29,10 @@ app.use(
     name: "session-user",
     store: MongoStore.create({
       clientPromise: clientDB,
-      dbName: "shortURL",
+      dbName: process.env.DBNAME,
     }),
     cookie: {
-      secure: process.env.MODO === "production",
+      secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     },
   })
