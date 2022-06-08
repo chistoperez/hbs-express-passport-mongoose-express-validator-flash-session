@@ -8,8 +8,8 @@ const { create } = require("express-handlebars");
 const cors = require("cors");
 const User = require("./models/User");
 const csrf = require("csurf");
-require("dotenv").config();
 const clientDB = require("./database/db");
+require("dotenv").config();
 
 const app = express();
 
