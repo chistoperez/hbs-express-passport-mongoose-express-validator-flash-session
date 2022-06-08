@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
@@ -9,7 +11,6 @@ const cors = require("cors");
 const User = require("./models/User");
 const csrf = require("csurf");
 const clientDB = require("./database/db");
-require("dotenv").config();
 
 const app = express();
 
